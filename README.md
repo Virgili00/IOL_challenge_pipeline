@@ -56,7 +56,7 @@ Se genero test en la etapa silver para controlar los registros que no cumplan co
 ##Integracion con IA
 Mi propuesta de integracion con IA es la calidad conjunto con la tabla de test.
 El agente busca la tabla de los test fallidos y con los id de los registros fallidos busca patrones dentro de las tablas de trusted. Con esto se generaria un reporte 
-## Task 06: Integración con Inteligencia Artificial
+
 
 * **Mecanismo Operativo:**
   1. Durante la ejecución del pipeline (capa Bronze/Silver), las pruebas de calidad insertan las operaciones rechazadas en `audit.test_failed_records` registrando el `record_id`, `test_id` y `failure_reason`[cite: 1].
