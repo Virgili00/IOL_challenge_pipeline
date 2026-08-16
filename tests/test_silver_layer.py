@@ -1,4 +1,8 @@
 # Databricks notebook source
+# /// script
+# [tool.databricks.environment]
+# environment_version = "5"
+# ///
 # DBTITLE 1,Tests de Calidad - Silver Layer
 # MAGIC %md
 # MAGIC # Tests de Calidad de Datos - Silver Layer
@@ -523,18 +527,4 @@ except Exception as e:
 # COMMAND ----------
 
 # DBTITLE 1,Resumen y Exit
-# Exit con JSON
-result = {
-    "status": status,
-    "result": result_flag,
-    "records_read": total_tests,
-    "records_written": 0,
-    "error_message": "; ".join(test_failures) if test_failures else None,
-    "table_name": "test_silver_layer",
-    "layer": "SILVER",
-    "total_tests": total_tests,
-    "failures": len(test_failures),
-    "warnings": len(test_warnings)
-}
-
-dbutils.notebook.exit(json.dumps(result))
+dbutils.notebook.exit('END of Test')

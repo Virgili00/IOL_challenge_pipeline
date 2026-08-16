@@ -226,41 +226,6 @@ def ejecutar_notebook(ruta, timeout_seconds=3600, parametros=None, layer="", tab
             "error": error_msg
         }
 
-def imprimir_resumen(resultados):
-    """
-    Imprime resumen de ejecución con métricas de registros.
-    """
-    print("\n" + "="*80)
-    print("📊 RESUMEN DE EJECUCIÓN DEL PIPELINE")
-    print("="*80)
-    
-    total_duracion = sum(r["duration_seconds"] for r in resultados.values())
-    exitosos = sum(1 for r in resultados.values() if r["status"] == "success")
-    fallidos = sum(1 for r in resultados.values() if r["status"] == "failed")
-    total_read = sum(r.get("records_read", 0) for r in resultados.values())
-    total_written = sum(r.get("records_written", 0) for r in resultados.values())
-    
-    print(f"\nDuración total: {total_duracion:.2f}s ({total_duracion/60:.2f} min)")
-    print(f"Exitosos: {exitosos}")
-    print(f"Fallidos: {fallidos}")
-    print(f"Total registros leídos: {total_read:,}")
-    print(f"Total registros escritos: {total_written:,}")
-    print("Detalle por notebook:")
-    
-    for nombre, resultado in resultados.items():
-        icono = "success" if resultado["status"] == "success" else "failed"
-        duracion = resultado['duration_seconds']
-        read = resultado.get('records_read', 0)
-        written = resultado.get('records_written', 0)
-        
-        print(f"\n{icono} {nombre}")
-        print(f"   Tiempo: {duracion:.2f}s")
-        if read > 0 or written > 0:
-            print(f"Leídos: {read:,} | Escritos: {written:,}")
-        
-        if resultado["error"]:
-            print(f" Error: {resultado['error'][:100]}...")
-
 # COMMAND ----------
 
 # DBTITLE 1,Ejecutar Bronze transacciones
@@ -275,7 +240,7 @@ print("BRONZE LAYER - TRANSACCIONES")
 
 # 1. Transacciones Bronze
 resultados["transacciones_bronze"] = ejecutar_notebook(
-    "./process/transacciones_bronze",
+    "./process/transacciones_bronze_01",
     timeout_seconds=1800,
     parametros=parametros_bronze,
     layer="BRONZE",
@@ -300,7 +265,7 @@ print("SILVER LAYER - TRANSACCIONES")
 
 # 2. Transacciones Silver
 resultados["transacciones_silver"] = ejecutar_notebook(
-    "./process/transacciones_silver",
+    "./process/transacciones_silver_02",
     timeout_seconds=1800,
     parametros=parametros_silver,
     layer="SILVER",
@@ -320,7 +285,7 @@ print("\nTransacciones Silver completado")
 print("BRONZE LAYER - PRECIOS (lee de transacciones_silver)")
 
 resultados["precios_bronze"] = ejecutar_notebook(
-    "./process/precios_bronze",
+    "./process/precios_bronze_03",
     timeout_seconds=7200, #porque la bajada tarda
     parametros=parametros_bronze,
     layer="BRONZE",
@@ -336,7 +301,7 @@ print("\nPrecios Bronze completado")
 print("SILVER LAYER - PRECIOS")
 
 resultados["precios_silver"] = ejecutar_notebook(
-    "./process/precios_silver",
+    "./process/precios_silver_04",
     timeout_seconds=1800,
     parametros=parametros_silver,
     layer="SILVER",
@@ -385,7 +350,7 @@ print("GOLD/REFINED LAYER")
 
 # 5. Transacciones Refined (Star Schema)
 resultados["transacciones_gold"] = ejecutar_notebook(
-    "./process/transacciones_gold",
+    "./process/transacciones_gold_05",
     timeout_seconds=1800,
     parametros=parametros_refined,
     layer="GOLD",
@@ -393,7 +358,7 @@ resultados["transacciones_gold"] = ejecutar_notebook(
 )
 
 # Verificar si Refined falló
-if resultados["transacciones_refined"]["status"] == "failed":
+if resultados["transacciones_gold"]["status"] == "failed":
     raise Exception("Refined layer falló. Abortando pipeline.")
 
 print("\nRefined layer completado")
@@ -403,9 +368,6 @@ print("\nRefined layer completado")
 # COMMAND ----------
 
 # DBTITLE 1,Resumen Final
-# Imprimir resumen completo
-imprimir_resumen(resultados)
-
 # Verificar éxito total
 if all(r["status"] == "success" for r in resultados.values()):
     print("\nPIPELINE COMPLETADO EXITOSAMENTE")

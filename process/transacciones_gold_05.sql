@@ -219,12 +219,12 @@ USING (
 ON target.id_transaccion = source.id_transaccion
 WHEN NOT MATCHED THEN INSERT (
   id_transaccion, fecha_sk, instrumento_sk, cliente_sk, origen_sk,
-  tipo_transaccion, cantidad, precio_transaccion, precio_mercado_final,
-  importe, moneda, fuente_precio, es_outlier, fecha_auditoria
+  tipo_transaccion, cantidad, precio_transaccion, precio_mercado,
+  importe, moneda, fuente_precio, fecha_auditoria
 ) VALUES (
   source.id_transaccion, source.fecha_sk, source.instrumento_sk, 
   source.cliente_sk, source.origen_sk, source.tipo_transaccion,
-  source.cantidad, source.precio_transaccion, source.precio_mercado_final,
-  source.importe, source.moneda, source.fuente_precio, source.es_cotizacion_outlier,
+  source.cantidad, source.precio_transaccion, source.precio_mercado,
+  source.importe, source.moneda, source.fuente_precio,
   source.fecha_auditoria
 )
